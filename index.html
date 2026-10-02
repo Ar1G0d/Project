@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovaTorrent — Games</title>
+    <meta
+      name="description"
+      content="Profesjonalna platforma do pobierania gier z wyszukiwaniem, aktualnymi tytułami i realnym katalogiem plików do pobrania."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="webCanvas" aria-hidden="true"></canvas>
+
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">N</div>
+          <div>
+            <div class="brand-name">NovaTorrent</div>
+            <div class="brand-subtitle">Game hub</div>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Główna nawigacja">
+          <a href="#">Start</a>
+          <a href="#">Nowości</a>
+          <a href="#">Popularne</a>
+          <a href="#">RPG</a>
+          <a href="#">Akcja</a>
+          <a href="#">A-List</a>
+        </nav>
+
+        <div class="topbar-actions">
+          <button class="ghost-btn" type="button">Zaloguj</button>
+          <button class="primary-btn" type="button">Dołącz</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="eyebrow">Katalog gier premium</span>
+            <h1>Największa biblioteka gier w jednym miejscu.</h1>
+            <p>
+              Szybkie pobieranie, profesjonalny katalog, wyszukiwarka i realnie działające linki do plików z lokalnego katalogu projektu.
+            </p>
+
+            <div class="search-panel">
+              <input id="searchInput" type="search" placeholder="Szukaj gry, gatunku lub platformy..." aria-label="Szukaj gier" />
+              <button type="button">Szukaj</button>
+            </div>
+
+            <div class="hero-meta">
+              <div>
+                <strong>18K+</strong>
+                <span>tytułów</span>
+              </div>
+              <div>
+                <strong>99.9%</strong>
+                <span>dostępność</span>
+              </div>
+              <div>
+                <strong>24/7</strong>
+                <span>wsparcie</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-card__head">
+              <span class="pill success">Top 1</span>
+              <span class="pill neutral">PC / PS5</span>
+            </div>
+            <h2>Shadow Horizon</h2>
+            <div class="stats-grid">
+              <div>
+                <span>Rozmiar</span>
+                <strong>46.8 GB</strong>
+              </div>
+              <div>
+                <span>Seed</span>
+                <strong>8,240</strong>
+              </div>
+              <div>
+                <span>Leech</span>
+                <strong>522</strong>
+              </div>
+              <div>
+                <span>Ocena</span>
+                <strong>4.9/5</strong>
+              </div>
+            </div>
+            <div class="progress-block">
+              <div class="progress-label">
+                <span>Wskaźnik dostępności</span>
+                <strong>94%</strong>
+              </div>
+              <div class="progress-bar"><span></span></div>
+            </div>
+            <a class="primary-btn wide" href="downloads/shadow-horizon-demo.txt" download="shadow-horizon-demo.txt">Pobierz teraz</a>
+          </div>
+        </section>
+
+        <section class="tag-row" aria-label="Popularne gatunki">
+          <span>Action</span>
+          <span>RPG</span>
+          <span>Open World</span>
+          <span>Survival</span>
+          <span>Sport</span>
+          <span>Strategy</span>
+        </section>
+
+        <section class="catalog-header">
+          <div>
+            <span class="eyebrow">Katalog</span>
+            <h3>Najpopularniejsze gry</h3>
+          </div>
+          <a href="#">Zobacz wszystko</a>
+        </section>
+
+        <section id="gameGrid" class="game-grid" aria-live="polite"></section>
+
+        <aside class="bottom-panel">
+          <div class="panel-card">
+            <span class="eyebrow">Dział rozwoju</span>
+            <h4>Wersja beta 2.8</h4>
+            <p>Ostatnie pakiety wydania obejmują optymalizację pobierania, wsparcie dla nowych plików i bardziej precyzyjne filtrowanie katalogu.</p>
+          </div>
+          <div class="panel-card spotlight">
+            <span class="eyebrow">Aktualne wydarzenie</span>
+            <h4>Festiwal gier 2026</h4>
+            <p>Odblokuj bonusy, skiny i dodatki specjalne po pobraniu wybranych premier z katalogu.</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
