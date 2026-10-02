@@ -414,7 +414,7 @@ authForm.addEventListener("submit", async (event) => {
 });
 
 const authConfig = window.NOVA_SUPABASE_CONFIG;
-if (window.supabase && authConfig?.url && authConfig?.anonKey) {
+if (window.supabase && authConfig?.url && authConfig?.anonKey) { 
   authClient = window.supabase.createClient(authConfig.url, authConfig.anonKey);
   authClient.auth.getSession().then(({ data }) => updateAccount(data.session?.user ?? null));
   authClient.auth.onAuthStateChange((_event, session) => updateAccount(session?.user ?? null));
