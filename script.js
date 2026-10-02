@@ -332,8 +332,37 @@ const authMessage = document.getElementById("authMessage");
 const authSubmit = document.getElementById("authSubmit");
 const authSwitch = document.getElementById("authSwitch");
 const accountButton = document.getElementById("accountButton");
+const accountAvatar = document.getElementById("accountAvatar");
+const accountAvatarImage = document.getElementById("accountAvatarImage");
+const accountLabel = document.getElementById("accountLabel");
+const profileDialog = document.getElementById("profileDialog");
+const profileForm = document.getElementById("profileForm");
+const profileEmail = document.getElementById("profileEmail");
+const profileNickname = document.getElementById("profileNickname");
+const profileMessage = document.getElementById("profileMessage");
+const profileAvatarFallback = document.getElementById("profileAvatarFallback");
+const profileAvatarPreview = document.getElementById("profileAvatarPreview");
+const avatarFile = document.getElementById("avatarFile");
+const saveProfile = document.getElementById("saveProfile");
+const signupNickname = document.getElementById("signupNickname");
+const signupNicknameLabel = document.getElementById("signupNicknameLabel");
 let authMode = "login";
 let authClient = null;
+let selectedAvatarUrl = "";
+
+function getNickname(user) {
+  return user.user_metadata?.nickname || user.email?.split("@")[0] || "Gracz";
+}
+
+function setAvatar(element, user, imageElement = null) {
+  const nickname = getNickname(user);
+  element.textContent = nickname.trim().slice(0, 1).toUpperCase();
+  if (!imageElement) return;
+
+  imageElement.hidden = !user.user_metadata?.avatar_url;
+  element.hidden = Boolean(user.user_metadata?.avatar_url);
+  if (user.user_metadata?.avatar_url) imageElement.src = user.user_metadata.avatar_url;
+}
 
 function setAuthMode(mode) {
   authMode = mode;
@@ -345,6 +374,9 @@ function setAuthMode(mode) {
   authSubmit.textContent = signingUp ? "Utwórz konto" : "Zaloguj się";
   authSwitch.textContent = signingUp ? "Masz już konto? Zaloguj się" : "Nie masz konta? Utwórz je";
   document.getElementById("authPassword").autocomplete = signingUp ? "new-password" : "current-password";
+  signupNickname.hidden = !signingUp;
+  signupNickname.required = signingUp;
+  signupNicknameLabel.hidden = !signingUp;
   authMessage.textContent = "";
 }
 
@@ -359,8 +391,14 @@ function updateAccount(user) {
   });
   accountButton.hidden = !user;
   if (user) {
-    accountButton.textContent = `${user.email} · Wyloguj`;
-    accountButton.setAttribute("aria-label", `Wyloguj konto ${user.email}`);
+    accountLabel.textContent = getNickname(user);
+    accountButton.setAttribute("aria-label", `Otwórz profil: ${getNickname(user)}`);
+    setAvatar(accountAvatar, user, accountAvatarImage);
+  } else {
+    accountLabel.textContent = "";
+    accountAvatar.textContent = "";
+    accountAvatarImage.hidden = true;
+    accountAvatarImage.removeAttribute("src");
   }
 }
 
@@ -376,9 +414,102 @@ authSwitch.addEventListener("click", () => setAuthMode(authMode === "login" ? "s
 
 accountButton.addEventListener("click", async () => {
   if (!authClient) return;
+  const { data, error } = await authClient.auth.getUser();
+  if (error || !data.user) {
+    setAuthMode("login");
+    authDialog.showModal();
+    return;
+  }
+
+  const user = data.user;
+  profileEmail.value = user.email || "";
+  profileNickname.value = getNickname(user);
+  profileMessage.textContent = "";
+  selectedAvatarUrl = user.user_metadata?.avatar_url || "";
+  profileAvatarFallback.hidden = false;
+  setAvatar(profileAvatarFallback, user, profileAvatarPreview);
+  avatarFile.value = "";
+  profileDialog.showModal();
+});
+
+document.getElementById("closeProfile").addEventListener("click", () => profileDialog.close());
+
+avatarFile.addEventListener("change", () => {
+  const file = avatarFile.files?.[0];
+  if (!file) return;
+  const supportedImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  if (!supportedImageTypes.includes(file.type) || file.size > 2 * 1024 * 1024) {
+    avatarFile.value = "";
+    profileMessage.textContent = "Wybierz obraz do 2 MB.";
+    profileMessage.classList.add("error");
+    return;
+  }
+
+  profileMessage.textContent = "";
+  profileMessage.classList.remove("error");
+  const previewUrl = URL.createObjectURL(file);
+  profileAvatarPreview.src = previewUrl;
+  profileAvatarPreview.hidden = false;
+  profileAvatarFallback.hidden = true;
+});
+
+profileForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!authClient) return;
+
+  const nickname = profileNickname.value.trim();
+  if (nickname.length < 2) {
+    profileMessage.textContent = "Nick musi mieć co najmniej 2 znaki.";
+    profileMessage.classList.add("error");
+    return;
+  }
+
+  saveProfile.disabled = true;
+  profileMessage.classList.remove("error");
+  profileMessage.textContent = "Zapisywanie profilu…";
+
+  try {
+    const { data: userData, error: userError } = await authClient.auth.getUser();
+    if (userError || !userData.user) throw userError || new Error("Sesja wygasła. Zaloguj się ponownie.");
+
+    let avatarUrl = selectedAvatarUrl;
+    const image = avatarFile.files?.[0];
+    if (image) {
+      const extension = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" }[image.type];
+      const path = `${userData.user.id}/avatar.${extension}`;
+      const { error: uploadError } = await authClient.storage.from("avatars").upload(path, image, {
+        cacheControl: "3600",
+        contentType: image.type,
+        upsert: true
+      });
+      if (uploadError) throw uploadError;
+      avatarUrl = authClient.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    }
+
+    const { data, error } = await authClient.auth.updateUser({
+      data: { nickname, avatar_url: avatarUrl }
+    });
+    if (error) throw error;
+
+    updateAccount(data.user);
+    profileDialog.close();
+  } catch (error) {
+    profileMessage.textContent = error.message || "Nie udało się zapisać profilu.";
+    profileMessage.classList.add("error");
+  } finally {
+    saveProfile.disabled = false;
+  }
+});
+
+document.getElementById("signOutButton").addEventListener("click", async () => {
   const { error } = await authClient.auth.signOut();
-  if (error) showAuthMessage(error.message, true);
-  else updateAccount(null);
+  if (error) {
+    profileMessage.textContent = error.message;
+    profileMessage.classList.add("error");
+    return;
+  }
+  profileDialog.close();
+  updateAccount(null);
 });
 
 authForm.addEventListener("submit", async (event) => {
@@ -394,7 +525,7 @@ authForm.addEventListener("submit", async (event) => {
   showAuthMessage("Trwa bezpieczne łączenie…");
 
   const result = authMode === "signup"
-    ? await authClient.auth.signUp({ email, password })
+    ? await authClient.auth.signUp({ email, password, options: { data: { nickname: signupNickname.value.trim() } } })
     : await authClient.auth.signInWithPassword({ email, password });
 
   authSubmit.disabled = false;

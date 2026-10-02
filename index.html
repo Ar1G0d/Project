@@ -38,7 +38,11 @@
         <div class="topbar-actions">
           <button class="ghost-btn" type="button" data-auth-mode="login">Zaloguj</button>
           <button class="primary-btn" type="button" data-auth-mode="signup">Dołącz</button>
-          <button class="user-chip" type="button" id="accountButton" hidden></button>
+          <button class="user-chip" type="button" id="accountButton" hidden>
+            <span class="user-avatar" id="accountAvatar" aria-hidden="true"></span>
+            <img class="user-avatar" id="accountAvatarImage" alt="" hidden />
+            <span id="accountLabel"></span>
+          </button>
         </div>
       </header>
 
@@ -150,11 +154,34 @@
         <p class="auth-description" id="authDescription">Zaloguj się, aby zapisać ulubione tytuły.</p>
         <label for="authEmail">Adres e-mail</label>
         <input id="authEmail" name="email" type="email" autocomplete="email" required />
+        <label for="signupNickname" id="signupNicknameLabel" hidden>Nick</label>
+        <input id="signupNickname" name="nickname" type="text" minlength="2" maxlength="24" autocomplete="nickname" hidden />
         <label for="authPassword">Hasło</label>
         <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" required />
         <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
         <button class="primary-btn auth-submit" id="authSubmit" type="submit">Zaloguj się</button>
         <button class="auth-switch" id="authSwitch" type="button">Nie masz konta? Utwórz je</button>
+      </form>
+    </dialog>
+
+    <dialog class="auth-dialog profile-dialog" id="profileDialog" aria-labelledby="profileTitle">
+      <form class="auth-form profile-form" id="profileForm">
+        <button class="dialog-close" type="button" id="closeProfile" aria-label="Zamknij">×</button>
+        <span class="eyebrow">Twoje konto</span>
+        <h2 id="profileTitle">Profil gracza</h2>
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profileAvatarFallback" aria-hidden="true"></div>
+          <img class="profile-avatar" id="profileAvatarPreview" alt="Podgląd awatara" hidden />
+          <label class="avatar-picker" for="avatarFile">Zmień awatar</label>
+          <input id="avatarFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+        </div>
+        <label for="profileEmail">Adres e-mail</label>
+        <input id="profileEmail" type="email" readonly />
+        <label for="profileNickname">Nick</label>
+        <input id="profileNickname" type="text" minlength="2" maxlength="24" autocomplete="nickname" required />
+        <p class="auth-message" id="profileMessage" role="status" aria-live="polite"></p>
+        <button class="primary-btn auth-submit" id="saveProfile" type="submit">Zapisz profil</button>
+        <button class="auth-switch signout-button" id="signOutButton" type="button">Wyloguj się</button>
       </form>
     </dialog>
 
